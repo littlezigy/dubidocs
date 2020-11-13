@@ -1,29 +1,14 @@
-# skydocs_
+# SkyDocs
 
-## Project setup
-```
-npm install
-```
+This is a suite for editing and creating documents on the blockchain.
+It has the following features
+- Word Processor
+- Presenter
+- Spreadsheet
+- Collaborative document editing
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Technologies
+### Blockchain Tools
+Sia and Ceramix IDX
+### Other
+Vue.js, HTML, CSS
