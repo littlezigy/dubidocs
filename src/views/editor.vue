@@ -17,7 +17,7 @@
 
         <div id = 'editContainer'>
             <div id = 'page'>
-                <div id = 'document' contenteditable = true>
+                <div id = 'document' contenteditable = true v-focus >
                 </div>
                 <div id = 'cursorOverlay'>
                     <span :style = '[ cursorPosition(item), randomCursorColor]' class = 'cursor other' v-for = '( item, index) in otherCursors' :key = 'index' ></span>
@@ -31,6 +31,13 @@
 import FormattingToolbar from '@/components/formattingToolbar.vue';
 export default {
     components: { FormattingToolbar },
+    directives: {
+        focus: {
+            mounted(el) {
+                el.focus();
+            }
+        }
+    },
     methods: {
         randomCursorColor() {
             let counter = 1;
