@@ -39,28 +39,6 @@ div#topBar {
     box-shadow: 0 3px 2px grey;
     z-index: 3;
 }
-#filemenu {
-    display: flex;
-}
-
-#filemenu li, #filemenu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-#filemenu li {
-    padding: 0.3em 0.6em;
-    cursor: pointer;
-}
-#filemenu li:hover {
-    background: #f7f7f7;
-}
-
-#filemenu ul {
-    position: absolute;
-    background: white;
-    z-index: 2;
-}
 
 .title {
     font-size: 3em;
