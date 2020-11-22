@@ -7,12 +7,16 @@
 
             <FileMenu>
             </FileMenu>
+
             <FormattingToolbar />
         </div>
 
         <div id = 'editContainer'>
             <div id = 'page'>
-                <div id = 'document' contenteditable = true v-focus >
+                <div id = 'document' contenteditable = true :style = 'documentStyleSettings'
+                    @input = 'getDoc'
+                    v-html = 'oldDoc'
+                    v-focus>
                 </div>
                 <div id = 'cursorOverlay'>
                     <span :style = '[ cursorPosition(item), randomCursorColor]' class = 'cursor other' v-for = '( item, index) in otherCursors' :key = 'index' ></span>
