@@ -2,8 +2,13 @@
     <ul id = 'filemenu'>
         <template v-for = '( item, index) in menu' :key = 'index'>
             <li @click = 'toggleMenu(item.name)'>{{ item.name }}
-                <ul v-if = 'activeMenu === item.name'>
-                    <li @click = 'stop'  v-for = '( child, index) in item.children' :key = 'index'  >{{ child.name }}</li>
+                <ul v-if = 'activeMenu === item.name || (item.children && item.children.map(a => a.name).includes(activeMenu))'>
+                    <li @click.stop = 'toggleMenu(child.name)'  v-for = '( child, index) in item.children' :key = 'index'  >{{ child.name }}
+                        <ul v-if = 'activeMenu === child.name'>
+                            <li @click = 'stop'  v-for = '( child, index) in child.children' :key = 'index'  >{{ child.name }}
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
         </template>
@@ -20,7 +25,9 @@ export default {
                 children: [{
                     name: 'Recent Documents',
                     children: [{
-                        name: 'Doc 1'
+                        name: 'Doc 1',
+                      }, {
+                        name: 'Document 2'
                     }]
                     }, {
                         name: 'Share'
@@ -66,28 +73,6 @@ export default {
 }
 </script>
 
-<style scoped>
-#filemenu {
-    display: flex;
-}
-
-#filemenu li, #filemenu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-#filemenu li {
-    padding: 0.3em 0.6em;
-    cursor: pointer;
-}
-#filemenu li:hover {
-    background: #f7f7f7;
-}
-
-#filemenu ul {
-    position: absolute;
-    background: white;
-    z-index: 2;
-}
+<style scoped src = '@/assets/fileMenu.css'>
 </style>
 

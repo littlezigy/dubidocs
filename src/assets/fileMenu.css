@@ -1,0 +1,24 @@
+#filemenu {
+    display: flex;
+}
+
+#filemenu li, #filemenu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+#filemenu li {
+    padding: 0.3em 0.6em;
+    cursor: pointer;
+}
+#filemenu li:hover {
+    background: #f7f7f7;
+}
+
+#filemenu ul {
+    position: absolute;
+    background: white;
+    z-index: 2;
+    box-shadow: 2px 1px 5px black;
+}
+
