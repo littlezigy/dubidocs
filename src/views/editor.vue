@@ -21,9 +21,13 @@
 
 <script>
 import { randomizeCursorColors } from '@/components/cursors';
-import * as diff from 'diff';
+import * as docFn from '@/components/docSaver';
+
 import FormattingToolbar from '@/components/formattingToolbar.vue';
 import FileMenu from '@/components/fileMenu.vue';
+
+// import getCursorPos from '@/components/getCursorPosition.js';
+
 export default {
     components: { FormattingToolbar, FileMenu },
     directives: {
@@ -33,19 +37,33 @@ export default {
             }
         }
     },
-    watch: {
 
-    },
     methods: {
-        getDoc() {
-            var innerText = document.getElementById('document').innerHTML
-            this.newDoc = innerText;
-            this.docDiff();
+        getCursorPosition() {
+            /*
+            let textBox = document.getElementById('document');
+            let cursorOverlay = document.getElementById('cursorOverlay');
+            */
+
+            //let cursorPos = getCursorPos(textBox, cursorOverlay);
+
         },
-        docDiff() {
-            let currentDiff = diff.diffWordsWithSpace(this.oldDoc, this.newDoc);
-            this.diff = currentDiff;
-            console.log('THIS DIFF', currentDiff);
+        refresh: function() {
+            this.loadingDoc = true;
+
+            this.getCursorPosition();
+
+            return docFn.refresh()
+            .then(res => {
+                this.oldDoc = res
+
+                this.loadingDoc = false;
+            });
+        },
+        getDoc() {
+            let innerText = document.getElementById('document').innerHTML;
+            console.log('GETTING DOC', innerText);
+            this.newDoc = innerText;
         },
         documentStyleSettings() {
             let defaultLineHeight = '--line-height: ' + this.defaultLineHeight + 'em';
@@ -55,7 +73,12 @@ export default {
             return defaultSettings;
         },
 
-        randomCursorColor: () => randomizeCursorColors(this.otherCursors),
+        save: function () {
+            this.getDoc();
+            return docFn.syncDoc(this.newDoc);
+        },
+
+        randomCursorColor: function () { randomizeCursorColors(this.otherCursors); },
 
         cursorPosition(coordinates) {
             const xPos = coordinates.x + "em";
@@ -65,23 +88,24 @@ export default {
         }
     },
 
+    mounted() {
+        this.loadingDoc = true;
+        return docFn.refresh()
+        .then(res => {
+            this.oldDoc = res;
+            this.loadingDoc = false;
+        });
+    },
+
     data() {
         return {
             title: 'New Document',
             documentLineHeight: '1.3',
-            oldDoc: 'Food is worth 4everyng',
+            loadingDoc: false,
+            oldDoc: '',
             newDoc: '',
-            diff: '',
-            otherCursors: [{
-                x: 10,
-                y: 3
-            }, {
-                x: 12,
-                y: 22
-            }, {
-                x: 32,
-                y: 5
-            }],
+            autoRefreshTimer: null,
+            otherCursors: [],
         }
     }
 }
