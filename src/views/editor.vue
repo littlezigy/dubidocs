@@ -2,6 +2,9 @@
     <div id = 'container'>
         <div id = 'topBar'>
             <p class = 'title'>{{ title }}</p>
+            <button :disabled = 'loadingDoc !== false' @click = 'save'>Sync</button>
+            <button :disabled = 'loadingDoc !== false' @click = 'refresh'>Refresh</button>
+
             <FileMenu>
             </FileMenu>
             <FormattingToolbar />
