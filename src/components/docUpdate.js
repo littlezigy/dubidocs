@@ -6,22 +6,22 @@ export default function(patches, oldDoc) {
     if( !Array.isArray(patches) )
         patches = [ patches ];
 
-    let appliedPatch; 
+    let updatedDoc; 
     patches.slice().reverse().forEach(patch => {
         let parsedPatch = diff.parsePatch(patch.diff);
-        let prevDoc = appliedPatch || oldDoc;
+        let prevDoc = updatedDoc || oldDoc;
 
         let update = diff.applyPatch(prevDoc, parsedPatch);
 
         if(update == false)
             return;
         else {
-            appliedPatch = update;
+            updatedDoc = update;
             currentPatch = patch;
         }
             // throw new Error("Couldn't apply patch");
     });
 
-    return { appliedPatch,  currentPatch };
+    return { updatedDoc,  currentPatch };
 }
 
