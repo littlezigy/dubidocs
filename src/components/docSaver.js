@@ -140,9 +140,11 @@ const syncDoc = function(newDoc) {
     return fetchUpdates()
     .then(res => {
         console.log('FETCHED UPDATES', res);
-        if(res)
-            oldDoc = updateDoc(res, '');
-        else {
+        if(res) {
+            let docUpdateRes = oldDoc = updateDoc(res, oldDoc);
+            oldDoc = docUpdateRes.updatedDoc;
+            currentPatch = docUpdateRes.currentPatch;
+        } else {
             console.log('No new Updates from collaborators.', res);
             //Push local changes now.
 
