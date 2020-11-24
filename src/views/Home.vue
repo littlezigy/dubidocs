@@ -46,7 +46,13 @@ export default {
         }
     },
     mounted() {
-        return fetchAllDocuments(this.$store.state.user)
+        return window.ethereum.enable()
+        .then(res => {
+            let account = res[0];
+            this.$store.state.user = account;
+            window.localStorage.setItem('portal', 'https://siasky.net');
+        })
+        .then(() => fetchAllDocuments(this.$store.state.user))
         .then(res => {
             if(res) {
                 for (const key in res) {

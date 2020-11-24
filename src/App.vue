@@ -11,10 +11,16 @@
 import connect from '@/components/idx/connect';
 export default {
     mounted() {
-        this.$store.state.user = 'ta ta ta dadada. Samurai Jack. watch out!';
-        window.localStorage.setItem('portal', 'https://siasky.net');
-        return connect; //Too many logs. Will enable later.
-        // return connect()
+        console.log('MOUNING APP');
+        /*
+        return connect()
+        */
+        return window.ethereum.enable()
+        .then(res => {
+            let account = res[0];
+            this.$store.state.user = account;
+            window.localStorage.setItem('portal', 'https://siasky.net');
+        });
     }
 }
 </script>
