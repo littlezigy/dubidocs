@@ -39,6 +39,8 @@ export const createDocument = function(userSeed) {
                 state: ''
             })
         })
-        .then(() =>  newDocRef )
+        .then(() => {
+            return { id: newDocRef, doc: docs[newDocRef] }
+        })
     });
 }

@@ -6,7 +6,7 @@
 
       <div id = 'documents'>
           <div v-for = '( doc, id,index) in docs' :key = 'index'
-               @click = 'goToEditor(id)'
+               @click = 'openDocument(doc, id)'
           >
               <p class = 'title'>{{ doc.title || 'Untitled Document' }}</p>
 
@@ -28,11 +28,17 @@ export default {
         }
     },
     methods: {
+        openDocument(doc, id) {
+            console.log('OPENING DOCMENT', doc);
+            this.$store.state.document = doc;
+            return this.goToEditor(id);
+        },
         newDocument() {
             return createDocument(this.$store.state.user)
             .then(res => {
                 console.log('CREATED DOC', res);
-                this.$router.push({ name: 'Editor', params: { docID: res } });
+                const { doc, id} = res;
+                return this.openDocument(doc, id);
             });
         },
         goToEditor(id) {
@@ -45,13 +51,12 @@ export default {
             if(res) {
                 for (const key in res) {
                     let r = res[key]
-                    console.log('RR', r);
                     this.docs[key] = r;
                     if(r.created)
                         this.docs[key].created = r.created.toLocaleString();
                 }
             }
-            console.lgo('DOCS', this.docs);
+            console.log('DOCS', this.docs);
             console.log('FETHCED THOS DOCS BOSS', res);
         });
     }
