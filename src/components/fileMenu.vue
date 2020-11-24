@@ -1,9 +1,9 @@
 <template>
     <ul id = 'filemenu'>
         <template v-for = '( item, index) in menu' :key = 'index'>
-            <li @click = 'toggleMenu(item.name)'>{{ item.name }}
+            <li @click = 'toggleMenu(item)'>{{ item.name }}
                 <ul v-if = 'activeMenu === item.name || (item.children && item.children.map(a => a.name).includes(activeMenu))'>
-                    <li @click.stop = 'toggleMenu(child.name)'  v-for = '( child, index) in item.children' :key = 'index'  >{{ child.name }}
+                    <li @click.stop = 'toggleMenu(child)'  v-for = '( child, index) in item.children' :key = 'index'  >{{ child.name }}
                         <ul v-if = 'activeMenu === child.name'>
                             <li @click = 'stop'  v-for = '( child, index) in child.children' :key = 'index'  >{{ child.name }}
                             </li>
@@ -30,6 +30,9 @@ export default {
                         name: 'Document 2'
                     }]
                     }, {
+                        name: 'Open',
+                        action: 'open'
+                    }, {
                         name: 'Share'
                     }, {
                         name: 'Download'
@@ -44,16 +47,6 @@ export default {
                         name: 'Copy'
                     }]
                 }, {
-                    name: 'View',
-                    children: [{
-                        name: 'Zoom'
-                    }]
-                }, {
-                    name: 'Tools',
-                    children: [{
-                        name: 'Accessibility Settings'
-                    }]
-                }, {
                     name: 'Help',
                     children: [{
                         name: 'About'
@@ -65,9 +58,13 @@ export default {
         }
     },
     methods: {
-        toggleMenu(name) {
-            console.log('TOGGLIGNG MENU', name);
+        toggleMenu(menu) {
+            let name = menu.name;
+            console.log('TOGGLIGNG MENU', menu.name);
             this.activeMenu = (this.activeMenu === name) ? null : name;
+
+            if(menu.action)
+                this.$emit('menu', menu.action);
         }
     }
 }
