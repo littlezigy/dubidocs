@@ -26,7 +26,8 @@ export const createDocument = function(userSeed) {
         const docPublicKey = genKeyPairFromSeed(newDocSeed).publicKey;
 
         docs[newDocRef] = {
-            privateKey: docPrivateKey, publicKey: docPublicKey
+            privateKey: docPrivateKey, publicKey: docPublicKey,
+            created: new Date()
         }
 
         // Save the document
