@@ -69,7 +69,7 @@ const fetchUpdates = function() {
         if(res && res.data)
             return fetchPatches(res.data)
         else
-            return null;
+            throw new Error('Error fetching updates');
     });
 }
 

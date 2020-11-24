@@ -1,5 +1,9 @@
 <template>
     <div id = 'container'>
+        <div id = 'err'>
+            {{ errToast }}
+        </div>
+
         <div id = 'topBar'>
             <p class = 'title'>{{ title }}</p>
             <button :disabled = 'loadingDoc !== false' @click = 'save'>Sync</button>
@@ -97,6 +101,10 @@ export default {
             .then(res => {
                 this.oldDoc = res;
                 this.loadingDoc = false;
+            }).catch(err => {
+                this.err = true;
+                if( err.includes('save') )
+                    this.errToast = err.message;
             });
         },
 
@@ -145,6 +153,9 @@ export default {
             newDoc: '',
             autoRefreshTimer: null,
             otherCursors: [],
+
+            err: false,
+            errToast: 'Big bad error!'
         }
     }
 }

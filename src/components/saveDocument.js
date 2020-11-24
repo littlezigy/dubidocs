@@ -7,7 +7,9 @@ import docDiff from './docDiff';
 import db from './skydbKeys';
 
 let saveCounter = 0;
+let refreshes = 0;
 const SAVES_PER_CHECKPOINT = 5
+const REFRESH_MAX = 5;
 
 const parseSkyhex = function(hex) {
 	//var hex  = str1.toString();
@@ -22,53 +24,68 @@ export default function(oldDoc, newDoc, publicKey, privateKey) {
     const client = new SkynetClient(portal);
 
     let changes = docDiff(oldDoc, newDoc);
-    let patch;
+    let patch = {};
 
     console.log('NEW DOC', newDoc, '\nOLD DOC', oldDoc);
     // Save resources and reduce load on skydb/other db 
     if(changes == false)
         return new Promise(resolve => resolve(false));
 
-    // Get entry url first
-    let skylink = client.registry.getEntryUrl(publicKey, db.diff)
-    return axios.get(skylink, {timeout: 3000})
-    .catch(err => {
-        if(err.message.includes('timeout of') && err.message.includes('exceeded'))
-            return;
-        else
-            throw err;
-    })
+    console.log('PROCEEIDNG TO SAVE');
+
+    // let registryUrl = client.registry.getEntryUrl(publicKey, db.diff)
+    // return axios.get(registryUrl)
+    return client.registry.getEntry(publicKey, db.diff)
     .then(res => {
-        console.log('PROCEEIDNG TO SAVE');
-        let prevDiff = null;
-
-        if(res && res.data && res.data.data) {
-            prevDiff = parseSkyhex(res.data.data);
-            prevDiff = 'https://siasky.net/' + prevDiff;
-        }
-
-        // Save file state every 5 saves.
-        let state;
+        console.log('REGISTRY ENTYR', res);
+        let dbEntrySkylink = res.entry.data;;
+        console.log('DB ENTRY SKYLIKNK', dbEntrySkylink);
 
         if(saveCounter >= SAVES_PER_CHECKPOINT) {
-            state = newDoc;
+            prevDiff = parseSkyhex(dbEntrySkylink);
+            prevDiff = 'https://siasky.net/' + prevDiff;
+
+            patch.prevDiff = prevDiff;
+        }
+
+        return axios.get(portal + '/' + dbEntrySkylink, { timeout: 3000 })
+    })
+    .then(res => {
+        console.log('RES DB', res.data);
+        console.log('FETCHED DIFF HISTORY', res.data);
+        let prevDiff = null;
+
+        if( Array.isArray(res.data.diff) ) {
+            patch.diff = [ ...res.data.diff, changes ];
+        } else {
+            patch.state = newDoc;
+            patch.diff = [ changes ]
+        }
+
+        // Save file state every few saves.
+        if(saveCounter >= SAVES_PER_CHECKPOINT) {
+            patch.state = newDoc;
             saveCounter = 0;
         }
 
-        patch = {
-            diff: changes,
-            ...prevDiff && { prevDiff },
-            ...state && { state }
-        }
+        console.log('PATCH SAVIGN', patch);
 
         return client.db.setJSON(privateKey, db.diff, patch)
     }).then(res => {
-        saveCounter++;
+
 
         if(!res || res == undefined)
-            // Save resources and reduce load on skydb/other db 
             return patch;
         else throw new Error('Error saving document');
+    })
+    .catch(err => {
+        console.log('ERRORR WITH SAVE', err);
+        if(refresh < REFRESH_MAX) {
+            refresh++;
+            return saveDocument(oldDoc, newDoc, publicKey, privateKey)
+        }
+        else throw new Error('Error Saving Document');
+
     });
 }
 

@@ -66,5 +66,17 @@ div#overlay {
     align-items: center;
 
     background: rgba(0, 0, 0, 0.4);
+
+}
+.err, #err {
+    background: red;
+    font-size: 1.3rem;
+    padding: 1em 2em;
+    color: white;
+    position: fixed;
+    top: 0;
+    right: 0;
+
+    border-radius: 6px;
 }
 </style>
