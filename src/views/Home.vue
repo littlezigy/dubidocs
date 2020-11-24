@@ -1,9 +1,11 @@
 <template>
   <div class="home">
-      <p>Go back to editing...</p>
+      <h2 class = 'dubidocs'>DubiDocs</h2>
+      <p class ='text-center'>Work anywhere you want to.</p>
 
       <button @click = 'newDocument'>New Document</button>
 
+      <h2 class = 'text-left'>Your Documents</h2>
       <div id = 'documents'>
           <div v-for = '( doc, id,index) in docs' :key = 'index'
                @click = 'openDocument(doc, id)'
@@ -71,13 +73,27 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #documents > div {
     cursor: pointer;
     border: 2px solid #0000ff50;
     display: flex;
     justify-content: space-between;
+    font-size: 1.1rem;
+
+    margin: 2em;
+    padding: 0.2em 2em;
+}
+#documents > div:hover {
+    background: #0000ff50;
 }
 #documents > .date {
+}
+div.home {
+    padding: 2em 5em;
+}
+
+.dubidocs {
+    font-size: 3em;
 }
 </style>

@@ -1,0 +1,29 @@
+button {
+    padding: 0.8em 1.3em;
+    border: 3px solid #2000af15;
+    background: white;
+    color: #2000af;
+    border-radius: 6px;
+
+    cursor: pointer;
+}
+
+button:hover {
+    padding: 0.8em 1.3em;
+    border: 3px solid #2000af50;
+    font-weight: 500;
+    background: #2000af15;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+}
+
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
