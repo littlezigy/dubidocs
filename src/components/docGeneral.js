@@ -52,7 +52,7 @@ const initialize = function(docKeys, id) {
     patches = [];
     newPatches = []
 
-    return this.syncDoc('');
+    return syncDoc('');
 }
 
 const fetchUpdates = function() {
@@ -60,15 +60,10 @@ const fetchUpdates = function() {
 
     return client.db.getJSON(publicKey, db.doc)
     .then(res => {
-        console.log('UPDATES', res);
-        return res.data;
-
-        /*
-        if(res && res.data)
-            return fetchPatches(res.data)
+        if(!res || res == null)
+            throw new Error('Error fetching data');
         else
-            throw new Error('Error fetching updates');
-        */
+            return res.data;
     });
 }
 
@@ -130,7 +125,6 @@ const syncDoc = function(newDoc) {
         if(res === null)
             throw new Error('Failed to fetch updates');
 
-        console.log('FETCHED UPDATES', res);
         console.log('OLD DOC', oldDoc);
         console.log('NEW DOC', newDoc);
         let noChange = oldDoc == newDoc;
@@ -139,7 +133,6 @@ const syncDoc = function(newDoc) {
 
         let docUpdateRes = applyPatches(res);
 
-        console.log('OLD DOC', oldDoc);
         oldDoc = docUpdateRes.newDoc;
 
         console.log('DOC UPDATES', docUpdateRes);
@@ -169,6 +162,9 @@ const syncDoc = function(newDoc) {
     .catch(err => {
         console.log('SYNC EROR', err);
 
+        if(err.message == 'Failed to fetch updates')
+            console.log('SIMPLE  UPDATE FETCH FAIL');
+        /*
         syncCounter++;
 
         if(syncCounter < 5) {
@@ -177,8 +173,8 @@ const syncDoc = function(newDoc) {
 
         syncCounter = 0;
 
-        if(err.message.includes('fetch'))
-            throw new Error('Error Syncing Document');
+        */
+        throw new Error('Error Syncing Document');
     });
 }
 
