@@ -53,10 +53,12 @@ export default {
     },
 
     methods: {
-        getDocID() {
+        setDocID() {
             // Check url
             let id = this.$route.params.docID
             console.log('DOC ID IS', id);
+
+            this.$store.state.docID = id;
 
             window.localStorage.setItem('docID', id);
         },
@@ -117,7 +119,7 @@ export default {
     },
 
     mounted() {
-        this.getDocID();
+        this.setDocID();
         this.loadingDoc = true;
         return docFn.refresh()
         .then(res => {

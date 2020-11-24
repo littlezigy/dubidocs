@@ -1,9 +1,8 @@
 <template>
-  <div id="nav" v-if = '$route.name !== "Editor"'>
-    <router-link to="/">Home</router-link>
-     | <router-link to="/about">About</router-link>
-     | <router-link :to= '{ name: "Editor" }'>Editor</router-link>
-  </div>
+    <div id="nav">
+        <router-link to="/">Home</router-link>
+         | <router-link to="/about">About</router-link>
+    </div>
 
   <router-view/>
 </template>
@@ -12,6 +11,8 @@
 import connect from '@/components/idx/connect';
 export default {
     mounted() {
+        this.$store.state.user = 'ta ta ta dadada. Samurai Jack. watch out!';
+        window.localStorage.setItem('portal', 'https://siasky.net');
         return connect; //Too many logs. Will enable later.
         // return connect()
     }

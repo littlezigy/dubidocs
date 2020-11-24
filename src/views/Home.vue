@@ -57,3 +57,14 @@ export default {
     }
 }
 </script>
+
+<style>
+#documents > div {
+    cursor: pointer;
+    border: 2px solid #0000ff50;
+    display: flex;
+    justify-content: space-between;
+}
+#documents > .date {
+}
+</style>
