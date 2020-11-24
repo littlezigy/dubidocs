@@ -35,7 +35,7 @@ export const createDocument = function(userSeed) {
         .then(res =>  {
             // Save the first entry in the doc's diff db
             console.log('SAVED DOCUMENT TO USERS DOCUMENTS', res);
-            return client.db.setJSON(privateKey, db.diff, {
+            return client.db.setJSON(docPrivateKey, db.diff, {
                 state: ''
             })
         })

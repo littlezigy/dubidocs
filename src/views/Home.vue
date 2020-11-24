@@ -55,6 +55,10 @@ export default {
                     if(r.created)
                         this.docs[key].created = r.created.toLocaleString();
                 }
+
+                console.log('DOCS', res);
+
+                window.localStorage.setItem('docList', JSON.stringify(res));
             }
             console.log('DOCS', this.docs);
             console.log('FETHCED THOS DOCS BOSS', res);

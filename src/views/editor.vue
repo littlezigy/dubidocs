@@ -3,7 +3,6 @@
         <div id = 'topBar'>
             <p class = 'title'>{{ title }}</p>
             <button :disabled = 'loadingDoc !== false' @click = 'save'>Sync</button>
-            <button :disabled = 'loadingDoc !== false' @click = 'refresh'>Refresh</button>
 
             <FileMenu @menu = 'menuAction($event)' >
             </FileMenu>
@@ -56,11 +55,12 @@ export default {
         setDocID() {
             // Check url
             let id = this.$route.params.docID
-            console.log('DOC ID IS', id);
 
             this.$store.state.docID = id;
 
             window.localStorage.setItem('docID', id);
+
+            return id;
         },
         menuAction(payload) {
             console.log('menu action', payload);
@@ -78,21 +78,8 @@ export default {
             //let cursorPos = getCursorPos(textBox, cursorOverlay);
 
         },
-        refresh: function() {
-            this.loadingDoc = true;
-
-            this.getCursorPosition();
-
-            return docFn.refresh()
-            .then(res => {
-                this.oldDoc = res
-
-                this.loadingDoc = false;
-            });
-        },
         getDoc() {
             let innerText = document.getElementById('document').innerHTML;
-            console.log('GETTING DOC', innerText);
             this.newDoc = innerText;
         },
         documentStyleSettings() {
@@ -105,7 +92,12 @@ export default {
 
         save: function () {
             this.getDoc();
-            return docFn.syncDoc(this.newDoc);
+            this.loadingDoc = true;
+            return docFn.syncDoc(this.newDoc)
+            .then(res => {
+                this.oldDoc = res;
+                this.loadingDoc = false;
+            });
         },
 
         randomCursorColor: function () { randomizeCursorColors(this.otherCursors); },
@@ -119,9 +111,24 @@ export default {
     },
 
     mounted() {
-        this.setDocID();
+        // Load document
+        let doc = this.$store.state.document;
+
+        let id = this.setDocID();
+
+        if(!doc) {
+            let docList = window.localStorage.getItem('docList');
+            docList  = JSON.parse(docList);
+
+            if(docList[id])
+                doc = docList[id];
+            else
+                return this.$router.push('/');
+        }
+
+
         this.loadingDoc = true;
-        return docFn.refresh()
+        return docFn.initialize(doc, id)
         .then(res => {
             this.oldDoc = res;
             this.loadingDoc = false;
