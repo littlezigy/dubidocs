@@ -1,88 +1,40 @@
-import { SkynetClient, genKeyPairFromSeed } from "skynet-js";
+import { SkynetClient } from "skynet-js";
 import axios from 'axios';
 const portal = 'https://siasky.net';
 
-const userSeed = 'ta ta ta dadada. Samurai Jack. watch out!';
-
 import updateDoc from './docUpdate';
-import docDiff from './docDiff';
+import saveDoc from './saveDocument';
+
+let privateKey, publicKey, docID;
 
 let oldDoc = '';
 let patches = [];
+let newPatches = [];
 let currentPatch = null;
 
-let fileid = 234;
-let diffKey = 'diff' + fileid;
-
-const getOldDoc = function() {
-    return oldDoc;
-}
-
-const parseSkyhex = function(hex) {
-	//var hex  = str1.toString();
-	var str = '';
-	for (var n = 0; n < hex.length; n += 2) {
-		str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
-	}
-	return str;
-}
-
-const saveDoc = function(newDoc) {
-    const client = new SkynetClient(portal);
-    const { privateKey, publicKey } = genKeyPairFromSeed(userSeed);
-
-    let changes = docDiff(oldDoc, newDoc);
-
-    console.log('NEW DOC', newDoc, '\nOLD DOC', oldDoc);
-    // Save resources and reduce load on skydb/other db 
-    if(changes == false)
-        return new Promise(resolve => resolve(false));
-
-    // Get entry url first
-    let skylink = client.registry.getEntryUrl(publicKey, diffKey)
-    return axios.get(skylink, {timeout: 3000})
-    .catch(err => {
-        if(err.message.includes('timeout of') && err.message.includes('exceeded'))
-            return;
-        else
-            throw err;
-    })
-    .then(res => {
-        console.log('PROCEEIDNG TO SAVE');
-        let prevDiff = null;
-
-        if(res && res.data && res.data.data) {
-            prevDiff = parseSkyhex(res.data.data);
-            prevDiff = 'https://siasky.net/' + prevDiff;
-        }
-
-        let data = {
-            diff: changes,
-            ...prevDiff && { prevDiff }
-        }
-
-        // console.debug(privateKey, diffKey, data);
-
-        return client.db.setJSON(privateKey, diffKey, data)
-    }).then(res => {
-        if(!res || res == undefined)
-            // Save resources and reduce load on skydb/other db 
-            return true;
-        else throw new Error('Error saving document');
-    });
-}
+import db from './skydbKeys';
 
 const fetchPatches = function( payload ) {
-    console.log('FETCHING PATCHES', payload);
+    if(payload.state || payload.state == '') {
+        console.log('FOUND ONE WIHTH A STATE', payload.state);
+        oldDoc = payload.state;
+        console.log('PATCHES', patches);
+        return patches;
+    }
+
     if(payload.diff) {
         // Latest patch is fetched first.
-        if( currentPatch && (payload.prevDiff === currentPatch.prevDiff) )
+        console.log('CURRENT PATCH', currentPatch);
+        console.log('PREVIOUS PATCH', payload);
+        if( currentPatch && (payload.prevDiff === currentPatch.prevDiff) ) {
             console.log('NO NEED TO fetch');
-        else {
+            return newPatches;
+        } else {
             // If current patch is the first diff, it won't have property prevDiff
             // if(currentPatch && currentPatch.prevDiff)
             console.log('WHY AR YPU PUSING\nCurrent patch:', currentPatch, '\nfetched patch:', payload);
-                patches.push(payload);
+            patches.push(payload);
+            newPatches.push(payload);
 
             if(payload.prevDiff) {
                 return axios.get(payload.prevDiff)
@@ -90,17 +42,27 @@ const fetchPatches = function( payload ) {
                     return fetchPatches(res.data);
                 });
             } else {
-                return patches;
+                return newPatches;
             }
         }
     }
 }
 
+const initialize = function(docKeys, id) {
+    privateKey = docKeys.privateKey;
+    publicKey = docKeys.publicKey;
+
+    docID = id;
+
+    console.log('DO ID', docID);
+
+    return this.refresh();
+}
+
 const fetchUpdates = function() {
     const client = new SkynetClient(portal);
-    const { publicKey } = genKeyPairFromSeed(userSeed);
 
-    return client.db.getJSON(publicKey, diffKey)
+    return client.db.getJSON(publicKey, db.doc)
     .then(res => {
         console.log('FN', res);
 
@@ -136,31 +98,44 @@ const refresh = function() {
 }
 
 const syncDoc = function(newDoc) {
-    console.log('===================================================\nSYNCING...\n', newDoc);
+    newPatches = [];
+    console.log('PATCHES TO APPLY', newPatches);
+    console.log('PATCH LOG', patches);
     return fetchUpdates()
     .then(res => {
         console.log('FETCHED UPDATES', res);
-        if(res) {
+        if(res && res.length > 0) {
+            console.log('OLD DOC', oldDoc);
+            console.log('New updates', res);
             let docUpdateRes = oldDoc = updateDoc(res, oldDoc);
+            console.log('DOC UPDATED', docUpdateRes);
             oldDoc = docUpdateRes.updatedDoc;
+            console.log('OLD DOC', oldDoc);
             currentPatch = docUpdateRes.currentPatch;
+            console.log('CURRENT PATCH ', currentPatch);
+            refreshLoading = false;
+            return oldDoc;
         } else {
             console.log('No new Updates from collaborators.', res);
+            console.log('NEW CHANGES', oldDoc, newDoc);
             //Push local changes now.
 
-            return saveDoc(newDoc)
+            return saveDoc(oldDoc, newDoc, publicKey, privateKey)
             .then(res => {
-                console.log('SAVE RES', res);
-                oldDoc = newDoc;
+                if(res) {
+                    if(res && typeof res === 'object') {
+                        console.log('ISAN OBJE');
+                        patches.unshift( res );
+                    }
+
+                    oldDoc = newDoc;
+                }
+
+                refreshLoading = false;
+                return oldDoc;
             });
         }
-
-        refreshLoading = false;
     });
 }
 
-export { refresh, saveDoc, getOldDoc, syncDoc }
-
-// const docFn = { refresh, saveDoc }
-
-// export { docFn as default }
+export { refresh, saveDoc, syncDoc, initialize }
