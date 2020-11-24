@@ -12,12 +12,15 @@ import { definitions } from './config.json';
 export default function() {
     const threeIdConnect = new ThreeIdConnect()
 
+    console.log('SETUP 1');
     return window.ethereum.enable()
     .then(addresses => {
         const authProvider = new EthereumAuthProvider(window.ethereum, addresses[0])
+        console.log('SETUP 2');
         return threeIdConnect.connect(authProvider)
     })
     .then(async () => {
+    console.log('SETUP 3');
 
         const didProvider = await threeIdConnect.getDidProvider()
 
@@ -30,9 +33,4 @@ export default function() {
 
         return { idx, ceramic };
     });
-//    const didProvider = await threeIdConnect.getDidProvider()
-
-
-    // const dubiseed = 'nonono';
-    // return idx.set('dubidocProfile', { nickname: 'Alice', dubiSeed })
 }

@@ -24,17 +24,13 @@ export default function(oldDoc, newDoc, publicKey, privateKey) {
     const client = new SkynetClient(portal);
 
     let changes = docDiff(oldDoc, newDoc);
-    let patch = {};
-
-    console.log('NEW DOC', newDoc, '\nOLD DOC', oldDoc);
-    // Save resources and reduce load on skydb/other db 
     if(changes == false)
         return new Promise(resolve => resolve(false));
 
     console.log('PROCEEIDNG TO SAVE');
 
-    // let registryUrl = client.registry.getEntryUrl(publicKey, db.diff)
-    // return axios.get(registryUrl)
+    let patch = {};
+
     return client.registry.getEntry(publicKey, db.diff)
     .then(res => {
         console.log('REGISTRY ENTYR', res);
@@ -42,12 +38,13 @@ export default function(oldDoc, newDoc, publicKey, privateKey) {
         console.log('DB ENTRY SKYLIKNK', dbEntrySkylink);
 
         if(saveCounter >= SAVES_PER_CHECKPOINT) {
+            patch.state = newDoc;
+
             prevDiff = parseSkyhex(dbEntrySkylink);
             prevDiff = 'https://siasky.net/' + prevDiff;
-
             patch.prevDiff = prevDiff;
+            saveCounter = 0;
         }
-
         return axios.get(portal + '/' + dbEntrySkylink, { timeout: 3000 })
     })
     .then(res => {
@@ -58,22 +55,14 @@ export default function(oldDoc, newDoc, publicKey, privateKey) {
         if( Array.isArray(res.data.diff) ) {
             patch.diff = [ ...res.data.diff, changes ];
         } else {
-            patch.state = newDoc;
             patch.diff = [ changes ]
-        }
-
-        // Save file state every few saves.
-        if(saveCounter >= SAVES_PER_CHECKPOINT) {
             patch.state = newDoc;
-            saveCounter = 0;
         }
 
         console.log('PATCH SAVIGN', patch);
 
         return client.db.setJSON(privateKey, db.diff, patch)
     }).then(res => {
-
-
         if(!res || res == undefined)
             return patch;
         else throw new Error('Error saving document');

@@ -19,14 +19,17 @@ const fetchProfile = function(ceramic) {
     const idx = new IDXWeb({ ceramic, definitions })
     return window.ethereum.enable()
     .then(accounts => {
+        let ac = accounts[0]
+        console.log('IS CERAMIC MESSING ME UP????', ac);
 
 //     return web3modal.connect()
         console.log('DIDD', idx.did);
         return idx.authenticate({
-            authProvider: new EthereumAuthProvider(ethereumProvider, accounts[0]),
+            // authProvider: new EthereumAuthProvider(ethereumProvider, ac)
         })
     })
-    .then(() => {
+    .then(res => {
+        console.log('SOMETHING BAD ISHAPPENIGN HERE\n', res);
         return idx.get( 'dubiProfile' )
     })
     .then(profile => {

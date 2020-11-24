@@ -16,23 +16,17 @@ import db from './skydbKeys';
 
 const fetchPatches = function( payload ) {
     if(payload.state || payload.state == '') {
-        console.log('FOUND ONE WIHTH A STATE', payload.state);
         oldDoc = payload.state;
-        console.log('PATCHES', patches);
         return patches;
     }
 
     if(payload.diff) {
         // Latest patch is fetched first.
-        console.log('CURRENT PATCH', currentPatch);
-        console.log('PREVIOUS PATCH', payload);
         if( currentPatch && (payload.prevDiff === currentPatch.prevDiff) ) {
-            console.log('NO NEED TO fetch');
             return newPatches;
         } else {
             // If current patch is the first diff, it won't have property prevDiff
             // if(currentPatch && currentPatch.prevDiff)
-            console.log('WHY AR YPU PUSING\nCurrent patch:', currentPatch, '\nfetched patch:', payload);
             patches.push(payload);
             newPatches.push(payload);
 
@@ -54,9 +48,11 @@ const initialize = function(docKeys, id) {
 
     docID = id;
 
-    console.log('DO ID', docID);
+    oldDoc = '';
+    patches = [];
+    newPatches = []
 
-    return this.refresh();
+    return this.syncDoc('');
 }
 
 const fetchUpdates = function() {
@@ -64,13 +60,35 @@ const fetchUpdates = function() {
 
     return client.db.getJSON(publicKey, db.doc)
     .then(res => {
-        console.log('FN', res);
+        console.log('UPDATES', res);
+        return res.data;
 
+        /*
         if(res && res.data)
             return fetchPatches(res.data)
         else
             throw new Error('Error fetching updates');
+        */
     });
+}
+
+const applyPatches = function(data) {
+    console.log('DATA TO APPLY PATCH', data);
+    let diffs = [];
+    let state = '';
+
+    console.log('STATE', data.state);
+
+    // If there is a state, then there can't be a diff. and vice versa
+    if( data.diff || data.diff != undefined) {
+        diffs = data.diff;
+    } else if(data.state || data.state != undefined)
+        state = data.state;
+    else throw new Error('Diff and state missing');
+
+    let updated  = updateDoc(diffs, state);
+    console.log('UDPATED', updated);
+    return updated;
 }
 
 let refreshLoading = false;
@@ -87,9 +105,15 @@ const refresh = function() {
     .then(res => {
         // console.log('OLD DOC TOBE UPDATED', oldDoc);
         if(res) {
-            let docUpdateRes = oldDoc = updateDoc(res, oldDoc);
-            oldDoc = docUpdateRes.updatedDoc;
-            currentPatch = docUpdateRes.currentPatch;
+            let docUpdateRes = updateDoc(res, oldDoc);
+            console.log('OLDDOC', docUpdateRes);
+            if(docUpdateRes.newDoc == undefined ) 
+                return oldDoc;
+            else
+                oldDoc = docUpdateRes.newDoc;
+            console.log('CONTINUING', oldDoc);
+            if( docUpdateRes.currentPatch )
+                currentPatch = docUpdateRes.currentPatch;
         }
 
         refreshLoading = false;
@@ -97,29 +121,35 @@ const refresh = function() {
     });
 }
 
+let syncCounter = 0;
+
 const syncDoc = function(newDoc) {
     newPatches = [];
-    console.log('PATCHES TO APPLY', newPatches);
-    console.log('PATCH LOG', patches);
     return fetchUpdates()
     .then(res => {
-        console.log('FETCHED UPDATES', res);
-        if(res && res.length > 0) {
-            console.log('OLD DOC', oldDoc);
-            console.log('New updates', res);
-            let docUpdateRes = oldDoc = updateDoc(res, oldDoc);
-            console.log('DOC UPDATED', docUpdateRes);
-            oldDoc = docUpdateRes.updatedDoc;
-            console.log('OLD DOC', oldDoc);
-            currentPatch = docUpdateRes.currentPatch;
-            console.log('CURRENT PATCH ', currentPatch);
-            refreshLoading = false;
-            return oldDoc;
-        } else {
-            console.log('No new Updates from collaborators.', res);
-            console.log('NEW CHANGES', oldDoc, newDoc);
-            //Push local changes now.
+        if(res === null)
+            throw new Error('Failed to fetch updates');
 
+        console.log('FETCHED UPDATES', res);
+        console.log('OLD DOC', oldDoc);
+        console.log('NEW DOC', newDoc);
+        let noChange = oldDoc == newDoc;
+        let change = !noChange;
+        console.log('CHANGEE', change);
+
+        let docUpdateRes = applyPatches(res);
+
+        console.log('OLD DOC', oldDoc);
+        oldDoc = docUpdateRes.newDoc;
+
+        console.log('DOC UPDATES', docUpdateRes);
+
+        refreshLoading = false;
+        console.log('OLD DOC', oldDoc);
+        console.log('CHANGEs', change);
+
+        if(change === true) {
+            console.log('Moving on to save...');
             return saveDoc(oldDoc, newDoc, publicKey, privateKey)
             .then(res => {
                 if(res) {
@@ -133,8 +163,22 @@ const syncDoc = function(newDoc) {
 
                 refreshLoading = false;
                 return oldDoc;
-            });
+            })
+        } else return new Promise(resolve => resolve(oldDoc));
+    })
+    .catch(err => {
+        console.log('SYNC EROR', err);
+
+        syncCounter++;
+
+        if(syncCounter < 5) {
+            return syncDoc(newDoc);
         }
+
+        syncCounter = 0;
+
+        if(err.message.includes('fetch'))
+            throw new Error('Error Syncing Document');
     });
 }
 

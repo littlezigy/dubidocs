@@ -1,6 +1,6 @@
 <template>
     <div id = 'container'>
-        <div id = 'err'>
+        <div id = 'err' v-if = 'err'>
             {{ errToast }}
         </div>
 
@@ -99,12 +99,12 @@ export default {
             this.loadingDoc = true;
             return docFn.syncDoc(this.newDoc)
             .then(res => {
+                console.log('YOu\'re not runing this whit han error, r?');
                 this.oldDoc = res;
                 this.loadingDoc = false;
             }).catch(err => {
                 this.err = true;
-                if( err.includes('save') )
-                    this.errToast = err.message;
+                this.errToast = err.message;
             });
         },
 
@@ -130,8 +130,10 @@ export default {
 
             if(docList[id])
                 doc = docList[id];
-            else
+            else {
+                console.log('document not found');
                 return this.$router.push('/');
+            }
         }
 
 

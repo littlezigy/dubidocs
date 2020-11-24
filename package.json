@@ -15,6 +15,7 @@
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
     "diff": "^5.0.0",
+    "html-to-docx": "^1.1.31",
     "ipfs": "^0.52.1",
     "mammoth": "^1.4.14",
     "randomstring": "^1.1.5",
