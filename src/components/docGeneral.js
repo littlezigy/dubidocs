@@ -2,7 +2,7 @@ import { SkynetClient, genKeyPairFromSeed } from "skynet-js";
 import axios from 'axios';
 const portal = 'https://siasky.net';
 
-const seed = 'ta ta ta dadada. Samurai Jack. watch out!';
+const userSeed = 'ta ta ta dadada. Samurai Jack. watch out!';
 
 import updateDoc from './docUpdate';
 import docDiff from './docDiff';
@@ -29,7 +29,7 @@ const parseSkyhex = function(hex) {
 
 const saveDoc = function(newDoc) {
     const client = new SkynetClient(portal);
-    const { privateKey, publicKey } = genKeyPairFromSeed(seed);
+    const { privateKey, publicKey } = genKeyPairFromSeed(userSeed);
 
     let changes = docDiff(oldDoc, newDoc);
 
@@ -98,7 +98,7 @@ const fetchPatches = function( payload ) {
 
 const fetchUpdates = function() {
     const client = new SkynetClient(portal);
-    const { publicKey } = genKeyPairFromSeed(seed);
+    const { publicKey } = genKeyPairFromSeed(userSeed);
 
     return client.db.getJSON(publicKey, diffKey)
     .then(res => {

@@ -28,7 +28,7 @@
 
 <script>
 import { randomizeCursorColors } from '@/components/cursors';
-import * as docFn from '@/components/docSaver';
+import * as docFn from '@/components/docGeneral';
 
 import FormattingToolbar from '@/components/formattingToolbar.vue';
 import FileMenu from '@/components/fileMenu.vue';
