@@ -1,4 +1,4 @@
-# SkyDocs
+# DubiDocs
 
 This is a suite for editing and creating documents on the blockchain.
 It has the following features
