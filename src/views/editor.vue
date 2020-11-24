@@ -5,7 +5,7 @@
             <button :disabled = 'loadingDoc !== false' @click = 'save'>Sync</button>
             <button :disabled = 'loadingDoc !== false' @click = 'refresh'>Refresh</button>
 
-            <FileMenu>
+            <FileMenu @menu = 'menuAction($event)' >
             </FileMenu>
 
             <FormattingToolbar />
@@ -23,6 +23,9 @@
                 </div>
             </div>
         </div>
+
+        <OpenFileDialog v-if = 'showOpenDialog'>
+        </OpenFileDialog>
     </div>
 </template>
 
@@ -33,10 +36,14 @@ import * as docFn from '@/components/docGeneral';
 import FormattingToolbar from '@/components/formattingToolbar.vue';
 import FileMenu from '@/components/fileMenu.vue';
 
+import OpenFileDialog from '@/components/openFileDialog.vue';
+
 // import getCursorPos from '@/components/getCursorPosition.js';
 
 export default {
-    components: { FormattingToolbar, FileMenu },
+    components: { FormattingToolbar, FileMenu,
+        OpenFileDialog
+    },
     directives: {
         focus: {
             mounted(el) {
@@ -46,6 +53,20 @@ export default {
     },
 
     methods: {
+        getDocID() {
+            // Check url
+            let id = this.$route.params.docID
+            console.log('DOC ID IS', id);
+
+            window.localStorage.setItem('docID', id);
+        },
+        menuAction(payload) {
+            console.log('menu action', payload);
+
+            if(payload == 'open') {
+                this.showOpenDialog = true;
+            }
+        },
         getCursorPosition() {
             /*
             let textBox = document.getElementById('document');
@@ -96,6 +117,7 @@ export default {
     },
 
     mounted() {
+        this.getDocID();
         this.loadingDoc = true;
         return docFn.refresh()
         .then(res => {
@@ -106,6 +128,7 @@ export default {
 
     data() {
         return {
+            showOpenDialog: false,
             title: 'New Document',
             documentLineHeight: '1.3',
             loadingDoc: false,

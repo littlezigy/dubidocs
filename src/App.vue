@@ -4,10 +4,21 @@
      | <router-link to="/about">About</router-link>
      | <router-link :to= '{ name: "Editor" }'>Editor</router-link>
   </div>
+
   <router-view/>
 </template>
 
-<style src = '@/assets/fontawesome/css/all.min.css'></style>
+<script>
+import connect from '@/components/idx/connect';
+export default {
+    mounted() {
+        return connect; //Too many logs. Will enable later.
+        // return connect()
+    }
+}
+</script>
+<style src = '@/assets/fontawesome/css/fontawesome.min.css'></style>
+<style src = '@/assets/fontawesome/css/solid.min.css'></style>
 <style>
 html, body {
     margin: 0;
@@ -34,5 +45,19 @@ html, body, div, p {
 
 #nav a.router-link-exact-active {
     color: #42b983;
+}
+div#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.4);
 }
 </style>
