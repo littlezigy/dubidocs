@@ -1,12 +1,13 @@
 import setup from './setup';
+import fetchProfile from './fetchProfile';
 
 const connect = function() {
-    console.log('RUNNING CONNECT');
     return setup()
     .then(res => {
+        const { ceramic } = res;
         console.log('IDX CONNECTED', res);
-        return res;
-    });
+        return fetchProfile(ceramic)
+    })
 }
 
 export default connect;

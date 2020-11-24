@@ -2,7 +2,7 @@
 
 const dubiProfile = {
     "type": "object",
-    "$schema": "<http://json-schema.org/draft-07/schema#>",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "required": [
         'nickname',
         'dubidocSeed'
@@ -18,6 +18,7 @@ const dubiProfile = {
     },
     additionalProperties: false
 }
+
 export const appDefinitions = {
   dubiProfile
 }

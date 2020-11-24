@@ -1,13 +1,15 @@
-import { IDX } from '@ceramicstudio/idx'
+import { IDXWeb } from '@ceramicstudio/idx-web';
 import Ceramic from '@ceramicnetwork/ceramic-core'
 import { ThreeIdConnect, EthereumAuthProvider } from '3id-connect'
 import IPFS from 'ipfs';
 
+
+const IDX = IDXWeb;
 // Import definitions created during development or build time
-import { appDefinitions } from './definitions'
+// import { appDefinitions } from './definitions'
+import { definitions } from './config.json';
 
 export default function() {
-    console.log('YAY');
     const threeIdConnect = new ThreeIdConnect()
 
     return window.ethereum.enable()
@@ -15,21 +17,18 @@ export default function() {
         const authProvider = new EthereumAuthProvider(window.ethereum, addresses[0])
         return threeIdConnect.connect(authProvider)
     })
-    .then(async res => {
+    .then(async () => {
 
-        console.log('RES******************', res);
         const didProvider = await threeIdConnect.getDidProvider()
 
         const ipfs = await IPFS.create()
         return Ceramic.create(ipfs, { didProvider })
     })
     .then(ceramic => {
-        console.log('CERMAIC', ceramic);
     
-        const idx = new IDX({ ceramic, definitions: appDefinitions })
-        console.log('IDX', idx);
+        const idx = new IDX({ ceramic, definitions })
 
-        return idx.did;
+        return { idx, ceramic };
     });
 //    const didProvider = await threeIdConnect.getDidProvider()
 

@@ -1,0 +1,8 @@
+{
+    "definitions": {
+        "dubiProfile": "kjzl6cwe1jw148bvgzhn0nkzhjtngigtlwo13xzxecw6wths0ezve3bnp9whzgs"
+    },
+    "schemas": {
+        "DubiProfile": "ceramic://kjzl6cwe1jw149wwlmmw8sdvact2dpp75q9dy3evssvdmo1u65ooifmv2nhv838"
+    }
+}
