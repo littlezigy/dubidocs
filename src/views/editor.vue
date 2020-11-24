@@ -5,8 +5,11 @@
         </div>
 
         <div id = 'topBar'>
-            <p class = 'title'>{{ title }}</p>
-            <button :disabled = 'loadingDoc !== false' @click = 'save'>Sync</button>
+            <div class = 'row'>
+                <router-link class = 'button' to = '/'>Home</router-link>
+                <p class = 'text-center  title'>{{ title }}</p>
+                <button :disabled = 'loadingDoc !== false' @click = 'save'>Sync</button>
+            </div>
 
             <FileMenu @menu = 'menuAction($event)' >
             </FileMenu>
@@ -99,7 +102,6 @@ export default {
             this.loadingDoc = true;
             return docFn.syncDoc(this.newDoc)
             .then(res => {
-                console.log('YOu\'re not runing this whit han error, r?');
                 this.oldDoc = res;
                 this.loadingDoc = false;
             }).catch(err => {
@@ -148,7 +150,7 @@ export default {
     data() {
         return {
             showOpenDialog: false,
-            title: 'New Document',
+            title: 'Untitled Document',
             documentLineHeight: '1.3',
             loadingDoc: false,
             oldDoc: '',

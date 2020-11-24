@@ -96,4 +96,7 @@ div.home {
 .dubidocs {
     font-size: 3em;
 }
+button {
+    color: #2000af;
+}
 </style>

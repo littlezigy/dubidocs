@@ -40,11 +40,18 @@
     outline: none;
 }
 div#topBar {
+    padding: 0.2em 2em;
     background: white;
     position: fixed;
     width: 100vw;
     box-shadow: 0 3px 2px grey;
     z-index: 3;
+}
+
+div#topBar .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .title {
