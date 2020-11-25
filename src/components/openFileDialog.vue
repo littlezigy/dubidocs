@@ -10,6 +10,7 @@
 
 <script>
 import * as d2html from 'mammoth';
+import {createDocument} from './createDocument';
 export default {
     data() {
         return {
@@ -21,17 +22,21 @@ export default {
             console.log('FILE', file);
             let reader = new FileReader();
             let arrayBuffer;
+            let userSeed = this.$store.state.user;
+            let pageRouter = this.$router;
+
             reader.onload = function() {
                 arrayBuffer = this.result;
-                // let arr = new Uint8Array(ab);
-                // let binaryString = String.fromCharCode.apply(null, arr);
-
-                // console.log('BIN STR', binaryString);
 
                 return d2html.convertToHtml({ arrayBuffer })
                 .then(res => {
                     console.log('RSULT', res);
                     this.html = res.value;
+                    return createDocument(userSeed, res.value, file.name)
+                    .then(res => {
+                        console.log('CREATED DOCUMENT', res);
+                        pageRouter.push({ name: 'Editor', params: { docID: res } });
+                    });
                 });
             }
             reader.readAsArrayBuffer(file);

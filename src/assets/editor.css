@@ -70,3 +70,9 @@ div#topBar .row {
     position: absolute;
     z-index: 2;
 }
+
+.loading {
+    font-size: 3rem;
+    color: white;
+    font-weight: bold;
+}

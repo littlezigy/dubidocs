@@ -32,6 +32,10 @@
 
         <OpenFileDialog v-if = 'showOpenDialog'>
         </OpenFileDialog>
+
+        <div class = 'loading' id = 'overlay' v-if = 'loading'>
+            <p>{{ loadingText }}</p>
+        </div>
     </div>
 </template>
 
@@ -55,6 +59,26 @@ export default {
             mounted(el) {
                 el.focus();
             }
+        }
+    },
+
+    watch: {
+        loading: function(val) {
+            this.loadingText = 'Loading';
+            let counter = 0;
+            let loadingTimer = setInterval(() => {
+                if(counter > 3) {
+                    this.loadingText = 'Loading';
+                    counter = 0;
+                }
+                else
+                    this.loadingText += '.';
+                counter++;
+            },1000)
+
+            if(val === true) {
+            } else 
+                clearInterval(loadingTimer);
         }
     },
 
@@ -139,11 +163,13 @@ export default {
         }
 
 
+        this.loading = true;
         this.loadingDoc = true;
         return docFn.initialize(doc, id)
         .then(res => {
             this.oldDoc = res;
             this.loadingDoc = false;
+            this.loading = false;
         });
     },
 
@@ -153,13 +179,16 @@ export default {
             title: 'Untitled Document',
             documentLineHeight: '1.3',
             loadingDoc: false,
+            loading: false,
             oldDoc: '',
             newDoc: '',
             autoRefreshTimer: null,
             otherCursors: [],
 
             err: false,
-            errToast: 'Big bad error!'
+            errToast: 'Big bad error!',
+
+            loadingText: 'Loading'
         }
     }
 }
