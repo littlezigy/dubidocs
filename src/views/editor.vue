@@ -7,8 +7,10 @@
         <div id = 'topBar'>
             <div class = 'row'>
                 <router-link class = 'button' to = '/'>Home</router-link>
-                <p class = 'text-center  title'>{{ title }}</p>
-                <button :disabled = 'loadingDoc !== false' @click = 'save'>Sync</button>
+                <p v-if = 'editTitle === false' @click = 'editTitle = true' class = 'text-center title'>{{ title || 'Untitled Document' }}</p>
+                <input v-else v-on:keyup.enter = 'editTitle = false' type = 'text' placeholder = 'Untitled Document' v-model = 'title' />
+
+                <button :disabled = 'loadingDoc !== false' @click = 'sync'>Sync</button>
             </div>
 
             <FileMenu @menu = 'menuAction($event)' >
@@ -176,7 +178,10 @@ export default {
     data() {
         return {
             showOpenDialog: false,
-            title: 'Untitled Document',
+
+            title: '',
+            editTitle: false,
+
             documentLineHeight: '1.3',
             loadingDoc: false,
             loading: false,
