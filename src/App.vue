@@ -78,6 +78,8 @@ div#overlay {
     top: 0;
     right: 0;
 
+    z-index: 10;
+
     border-radius: 6px;
 }
 </style>
