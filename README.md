@@ -1,6 +1,6 @@
 # DubiDocs
 
-Project link: [dubidocs.perimortem.hns.to](dubidocs.perimortem.hns.to)
+Project link: [https://siasky.net/hns/perimortem/](siasky.net/hns/perimortem/)
 
 This is a suite for editing and creating documents on the blockchain.
 It has the following features
