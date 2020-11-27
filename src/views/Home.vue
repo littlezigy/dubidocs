@@ -10,12 +10,16 @@
           <div v-for = '( doc, id,index) in docs' :key = 'index'
                @click = 'openDocument(doc, id)'
           >
-              <p class = 'title'>{{ doc.title || 'Untitled Document' }}</p>
+            <p class = 'title'>{{ doc.title || 'Untitled Document' }}</p>
 
-              <p class = 'date' v-if = 'doc.created'>Created on {{ doc.created }}</p>
-          </div>
-      </div>
-  </div>
+            <p class = 'date' v-if = 'doc.created'>Created on {{ doc.created }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div id = 'overlay' class = 'loading' v-if = 'loading === true'>
+        <p>{{ loadingText }}</p>
+    </div>
 </template>
 
 <script>
@@ -26,16 +30,40 @@ export default {
     name: 'Home',
     data(){
         return {
-            docs: {}
+            docs: {},
+            loadingText: '',
+            loading: false
+        }
+    },
+    watch: {
+        loading(val) {
+            this.loadingText = 'Creating your document on the blockchain';
+            let counter = 0;
+            let loadingTimer = setInterval(() => {
+                if(counter > 3) {
+                    this.loadingText = 'Creating your document on the blockchain';
+                    counter = 0;
+                }
+                else
+                    this.loadingText += '.';
+                counter++;
+            },1000)
+
+            if(val === true) {
+            } else 
+                clearInterval(loadingTimer);
         }
     },
     methods: {
         openDocument(doc, id) {
             console.log('OPENING DOCMENT', doc);
             this.$store.state.document = doc;
+            this.loadingText = 'Opening your document';
+
             return this.goToEditor(id);
         },
         newDocument() {
+            this.loading = true;
             return createDocument(this.$store.state.user)
             .then(res => {
                 console.log('CREATED DOC', res);
@@ -44,6 +72,7 @@ export default {
             });
         },
         goToEditor(id) {
+            this.loading = false;
             this.$router.push({ name: 'Editor', params: { docID: id } });
         }
     },
@@ -74,6 +103,9 @@ export default {
 </script>
 
 <style scoped>
+#overlay {
+    background: rgba(0, 0, 0, 0.85);
+}
 #documents > div {
     cursor: pointer;
     border: 2px solid #0000ff50;

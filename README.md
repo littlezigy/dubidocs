@@ -11,7 +11,7 @@ It has the following features
 - DubiDocs Slides
 - DubiDocs Spreadsheet
 
-# Current Issues
+## Current Issues
 - Document synchronization is quite slow. Planning to move the file sync from skynet to gundb or some other realtime database. Also considering using a node server with websockets.
 - Cursor jumps to beginning of document after a sync.
 
