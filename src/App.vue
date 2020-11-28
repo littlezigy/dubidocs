@@ -9,18 +9,27 @@
 
 <script>
 import connect from '@/components/idx/connect';
+import * as skyidIntegration from '@/components/skyid-integration';
+
 export default {
     mounted() {
         console.log('MOUNING APP');
         /*
         return connect()
         */
+
+        skyidIntegration.initialize()
+
+        let skyid =  skyidIntegration.login()
+        console.log('LOGIN', skyid);
+        /*
         return window.ethereum.enable()
         .then(res => {
             let account = res[0];
             this.$store.state.user = account;
             window.localStorage.setItem('portal', 'https://siasky.net');
         });
+        */
     }
 }
 </script>
