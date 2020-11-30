@@ -15,19 +15,27 @@ const fetchDocKeys = function() {
 }
 
 // Fetches all documents
-export const fetchAllDocuments = function(user) {
-    let portal = window.localStorage.portal;
-    const client = new SkynetClient(portal);
-    const { publicKey } = genKeyPairFromSeed(user);
+export const fetchAllDocuments = function(skyid) {
+    let docs;
+    let promiseWrapper = function(skyid) {
+        return new Promise((resolve, reject) => {
+            skyid.getJSON(db.userDocs, function(response) {
+                console.log('FETCHING DOCS', response);
+                if(response == false) {
+                    console.log('Failed to fetch documents');
+                    docs = [];
+                } else {
+                    docs = response;
+                    console.log({ docs });
+                }
 
-    const key = db.userDocs;
-    return client.db.getJSON(publicKey, key)
-    .then(res => {
-        console.log('GOTTEN USER DOCUMENTS', res);
-        if(!res)
-            return null;
-        else return res.data;
-    });
+                console.log('GOTTEN DOCS', docs);
+                return resolve(docs);
+            });
+        });
+    }
+
+    return promiseWrapper(skyid);
 }
 
 export const fetchDocument = function() {

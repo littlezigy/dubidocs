@@ -7,6 +7,7 @@
         <div id = 'topBar'>
             <div class = 'row'>
                 <router-link class = 'button' to = '/'>Home</router-link>
+                <slot name = 'logoutButton'></slot>
                 <p v-if = 'editTitle === false' @click = 'editTitle = true' class = 'text-center title'>{{ title || 'Untitled Document' }}</p>
                 <input v-else v-on:keyup.enter = 'editTitle = false' type = 'text' placeholder = 'Untitled Document' v-model = 'title' />
 

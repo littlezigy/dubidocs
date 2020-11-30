@@ -4,13 +4,35 @@ const db = dbKeys;
 
 var randomstring = require("randomstring");
 
-export const createDocument = function(userSeed) {
+const skyidSave = function(skyid, dbKey, data) {
+    return new Promise((resolve, reject) => {
+        skyid.setJSON(dbKey, data, function(response) {
+            if(response != true) {
+                console.error('Failed to save data to SkyID');
+                reject();
+            } else resolve(response);
+        })
+    });
+}
+
+const skyidFetch = function(skyid, dbKey) {
+    return new Promise((resolve, reject) => {
+        skyid.getJSON(dbKey, function(response) {
+            if(response == false) {
+                console.log('Failed to fetch data from skyid');
+            }
+           else resolve(response);
+        });
+    });
+}
+
+export const createDocument = function(skyid, fileContents = '', title = 'Untitled Document') {
     const portal = window.localStorage.getItem('portal');
     const client = new SkynetClient(portal);
     const { privateKey, publicKey } = genKeyPairFromSeed(userSeed);
 
     // Add new doc to user's documents;
-    return client.db.getJSON(publicKey, dbKeys.userDocs)
+    return skyidFetch(skyid, db.userDocs)
     .then(res => {
         console.log('USER DOCS', res);
 
@@ -30,10 +52,11 @@ export const createDocument = function(userSeed) {
             created: new Date()
         }
 
-        // Save the document
-        return client.db.setJSON(privateKey, db.userDocs, docs)
-        .then(res =>  {
-            // Save the first entry in the doc's diff db
+        console.log('DOCS', docs);
+
+        // Save the document['s keys] to user's documents
+        return skyidSave(skyid, db.userDocs, docs)
+        .then(saveRes => {
             console.log('SAVED DOCUMENT TO USERS DOCUMENTS', res);
             return client.db.setJSON(docPrivateKey, db.diff, {
                 state: ''

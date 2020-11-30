@@ -6,9 +6,13 @@
 
     <div v-if = 'skyid !== null'>
         <div v-if = 'loggedIn == true'>
-            <button class = 'logout-bar' @click = 'logout'>Logout</button>
-                <p>You are logged in</p>
-               <router-view/>
+            <router-view>
+                <template v-slot:logoutButton>
+                    <button class = 'logout-bar' @click = 'logout'>Logout</button>
+                </template>
+            </router-view>
+
+                <button class = 'logout-bar' @click = 'logout'>Logout</button>
         </div>
 
         <div v-else>
@@ -34,24 +38,51 @@ import connect from '@/components/idx/connect';
 import * as skyidIntegration from '@/components/skyid-integration';
 
 export default {
+    data() {
+        return {
+            skyid: null,
+            loggedIn: false
+        }
+    },
+    methods: {
+        setAuthState(message) {
+            console.log('IN SKYID CONSTRUCTOR');
+
+            switch(message) {
+                case 'login_fail':
+                    console.log('Login failed');
+                    break;
+                case 'login_success':
+                    console.log('Login succeed!')
+                    this.loggedIn = true;
+                    break;
+                case 'destroy':
+                    console.log('Logout succeed!')
+                    this.loggedIn = false;
+                    break;
+                default:
+                    console.log(message);
+                    break;
+            }
+        },
+
+        login() {
+            return skyidIntegration.login(this.skyid)
+        },
+
+        logout() {
+            return skyidIntegration.logout(this.skyid)
+        }
+    },
     mounted() {
-        console.log('MOUNING APP');
-        /*
-        return connect()
-        */
+        console.log('MOUNTING APP');
+        let skyid =  skyidIntegration.initialize(this.setAuthState)
 
-        skyidIntegration.initialize()
+        if(skyid.seed != '')
+            this.loggedIn = true;
 
-        let skyid =  skyidIntegration.login()
-        console.log('LOGIN', skyid);
-        /*
-        return window.ethereum.enable()
-        .then(res => {
-            let account = res[0];
-            this.$store.state.user = account;
-            window.localStorage.setItem('portal', 'https://siasky.net');
-        });
-        */
+        this.skyid = skyid;
+        this.$store.state.skyid = skyid;
     }
 }
 </script>

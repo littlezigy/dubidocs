@@ -1,4 +1,4 @@
-const initialize = function() {
+const initialize = function(skyidEventCallback) {
     let devMode;
 
     if(window.location.hostname == 'localhost')
@@ -7,36 +7,23 @@ const initialize = function() {
         devMode = false;
 
     let opts = { devMode };
-    let skyidEventCallback = function(message) {
-        switch(message) {
-            case 'login_fail':
-                console.log('Login failed')
-                break;
-            case 'login_success':
-                console.log('Login succeed!')
-                break;
-            case 'destroy':
-                console.log('Logout succeed!')
-                break;
-            default:
-                console.log(message)
-                break;
-        }
-	}
+            
+            let skyid = new SkyID('DubiDocs', skyidEventCallback, opts);
+            console.log('SKYIDD', skyid);
 
-    return new SkyID('DubiDocs', skyidEventCallback, opts); 
+            // Check if logged in
+            if (skyid.seed != '') { // if user logged in
+                console.log('Already logged in');
+            }
+
+            return skyid;
 }
 
-const login = function() {
-    return initialize()
-    .then(skyid => {
-        console.log('SKYID', skyid);
+const login = function(skyid) {
         return skyid.sessionStart();
-    });
 }
 
-const logout = function() {
-    let skyid = initialize();
+const logout = function(skyid) {
     return skyid.sessionDestroy();
 }
 

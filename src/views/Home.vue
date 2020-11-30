@@ -1,9 +1,11 @@
 <template>
   <div class="home">
-      <h2 class = 'dubidocs'>DubiDocs</h2>
+      <h2 class = 'dubidocs'>DubiDocs (BETA)</h2>
       <p class ='text-center'>Work anywhere you want to.</p>
 
       <button @click = 'newDocument'>New Document</button>
+
+      <slot name = 'logoutButton'></slot>
 
       <h2 class = 'text-left'>Your Documents</h2>
       <div id = 'documents'>
@@ -25,6 +27,7 @@
 <script>
 import { fetchAllDocuments } from '@/components/fetchDocuments';
 import { createDocument } from '@/components/createDocument';
+import * as skyidIntegration from '@/components/skyid-integration';
 
 export default {
     name: 'Home',
@@ -64,7 +67,7 @@ export default {
         },
         newDocument() {
             this.loading = true;
-            return createDocument(this.$store.state.user)
+            return createDocument(this.$store.state.skyid)
             .then(res => {
                 console.log('CREATED DOC', res);
                 const { doc, id} = res;
@@ -77,14 +80,10 @@ export default {
         }
     },
     mounted() {
-        return window.ethereum.enable()
+        let skyid = this.$store.state.skyid;
+        return fetchAllDocuments(skyid)
         .then(res => {
-            let account = res[0];
-            this.$store.state.user = account;
-            window.localStorage.setItem('portal', 'https://siasky.net');
-        })
-        .then(() => fetchAllDocuments(this.$store.state.user))
-        .then(res => {
+            console.log('FETCHED ALLDOCS', res);
             if(res) {
                 for (const key in res) {
                     let r = res[key]
