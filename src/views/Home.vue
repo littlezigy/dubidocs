@@ -1,6 +1,13 @@
 <template>
   <div class="home">
       <h2 class = 'dubidocs'>DubiDocs (BETA)</h2>
+      <p class = 'github text-center'><a href = 'https://github.com/littlezigy/dubidocs'><i class ='fab fa-github'></i>Github</a></p>
+
+      <div class = 'subtitle'>
+          <p>DubiDocs is still in beta</p>
+          <p>Please don't store any sensitive documents on DubiDocs</p>
+      </div>
+
       <p class ='text-center'>Work anywhere you want to.</p>
 
       <button @click = 'newDocument'>New Document</button>
@@ -102,6 +109,14 @@ export default {
 </script>
 
 <style scoped>
+.subtitle {
+    font-size: 0.8em;
+    text-align: center;
+}
+p.subtitle, .subtitle p {
+    margin-bottom: 0.3em;
+    margin-top: 0.3em;
+}
 #overlay {
     background: rgba(0, 0, 0, 0.85);
 }
@@ -129,5 +144,8 @@ div.home {
 }
 button {
     color: #2000af;
+}
+i {
+    margin-right: 0.5rem;
 }
 </style>
