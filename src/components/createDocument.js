@@ -29,17 +29,43 @@ const skyidFetch = function(skyid, dbKey) {
 export const createDocument = function(skyid, fileContents = '', title = 'Untitled Document') {
     const portal = window.localStorage.getItem('portal');
     const client = new SkynetClient(portal);
-    const { privateKey, publicKey } = genKeyPairFromSeed(userSeed);
+
+    let storedDocs = window.localStorage.getItem('docList');
+    storedDocs = JSON.parse(storedDocs);
+
+    console.log('STORED DOCS', storedDocs);
 
     // Add new doc to user's documents;
     return skyidFetch(skyid, db.userDocs)
     .then(res => {
-        console.log('USER DOCS', res);
+        let docs = res || {};
 
-        let docs = {};
+        // Migrate old docs
+        // If even one key is the same in localStorage docList as in  stoed docs on skyid, no need to migrate
 
-        if(res && res.data)
-            docs = res.data;
+        let similarKeys = [];
+
+        let oldDocKeys = Object.keys(storedDocs);
+        let docKeys = Object.keys(docs);
+        console.log({ oldDocKeys, docKeys });
+
+        for(let i = 0; i < oldDocKeys.length; i++) {
+            console.log('I', i);
+            if(oldDocKeys[i] == docKeys[i]) {
+                console.log('Comparing keys and they are same');
+                similarKeys.push(oldDocKeys[i]);
+            }
+        }
+
+        if(similarKeys.length < 1 ) {
+            console.log('Migrating documents...');
+            docs = { ...docs, ...storedDocs };
+        } else
+            console.log('No need for migration')
+
+        // End migration
+
+        console.log('DOCS obj', docs);
 
         let newDocSeed = randomstring.generate();
         let newDocRef = 'a' + randomstring.generate(5);
