@@ -1,0 +1,21 @@
+.skyid-button, .skyid-button:focus {
+    color: #fff;
+    background-color: #57b560;
+    font-weight: 700;
+    outline:none;
+
+    margin: auto;
+}
+.skyid-button img, .skyid-button:focus img {
+    filter: brightness(0) invert(1);
+}
+
+.skyid-button:hover img {
+    filter: none;
+}
+.skyid-button:hover {
+    background: #fff;
+    color: #57b560;
+    font-weight: 700;
+    border-color: #57b560;
+}

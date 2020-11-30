@@ -4,7 +4,29 @@
          | <router-link to="/about">About</router-link>
     </div>
 
-  <router-view/>
+    <div v-if = 'skyid !== null'>
+        <div v-if = 'loggedIn == true'>
+            <button class = 'logout-bar' @click = 'logout'>Logout</button>
+                <p>You are logged in</p>
+               <router-view/>
+        </div>
+
+        <div v-else>
+            <h2>You need to be logged in using <a href="https://sky-id.hns.siasky.net">SkyID</a></h2>
+
+            <!-- Button for login -->
+            <button @click = 'login' class="skyid-button imageButton">
+                <img src="@/assets/SkyID_Logo_128.png" alt="SkyID" class="skyid-logo">
+                Sign in with SkyID
+            </button>
+        </div>
+
+    </div>
+
+    <div v-else>
+        <h2 class="big-margin">Initializing SkyID...</h2>
+    </div>
+
 </template>
 
 <script>
@@ -36,6 +58,7 @@ export default {
 <style src = '@/assets/fontawesome/css/fontawesome.min.css'></style>
 <style src = '@/assets/fontawesome/css/solid.min.css'></style>
 <style src = '@/assets/styles/main.css'></style>
+<style src = '@/assets/styles/skyid.css'></style>
 <style>
 html, body {
     margin: 0;
@@ -49,6 +72,11 @@ html, body, div, p {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
+}
+
+button img {
+    height: 20px;
+    margin-right: 1em;
 }
 
 #nav {
