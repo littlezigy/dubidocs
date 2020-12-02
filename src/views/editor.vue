@@ -100,18 +100,117 @@ export default {
             console.log('menu action', payload);
 
             if(payload == 'open') {
+                this.stopAutosave();
                 this.showOpenDialog = true;
+            } else if(payload == 'download'){
+                // Todo
             }
         },
-        getCursorPosition() {
+
+        moveCursortoPos(docRange) {
+            let docArea = document.getElementById('document');
+
+            // let selection;
+
+            console.log('DOC RANGE TO USE', docRange);
+
+            let restoreSelection = function(containerEl, savedSel) {
+                var charIndex = 0, range = document.createRange();
+                range.setStart(containerEl, 0);
+                range.collapse(true);
+                var nodeStack = [containerEl], node, foundStart = false, stop = false;
+
+                while (!stop && (node = nodeStack.pop())) {
+                    if (node.nodeType == 3) {
+                        var nextCharIndex = charIndex + node.length;
+                        if (!foundStart && savedSel.start >= charIndex && savedSel.start <= nextCharIndex) {
+                            range.setStart(node, savedSel.start - charIndex);
+                            foundStart = true;
+                        }
+                        if (foundStart && savedSel.end >= charIndex && savedSel.end <= nextCharIndex) {
+                            range.setEnd(node, savedSel.end - charIndex);
+                            stop = true;
+                        }
+                        charIndex = nextCharIndex;
+                    } else {
+                        var i = node.childNodes.length;
+                        while (i--) {
+                            nodeStack.push(node.childNodes[i]);
+                        }
+                    }
+                }
+
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                console.log('RANGE', range);
+
+                sel.addRange(range);
+            }
+
+            restoreSelection(docArea, docRange);
+
             /*
-            let textBox = document.getElementById('document');
-            let cursorOverlay = document.getElementById('cursorOverlay');
+            if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+            {
+
+                let range = document.createRange();
+                console.log('NEW RANGE', range);
+                docRange.collapse();//collapse the range to the end point. false means collapse to end rather than the start
+                selection = window.getSelection();//get the selection object (allows you to change selection)
+                console.error('SELECTION', selection);
+                let clone = range.cloneRange(docRange)
+                console.log('CLONE RANGE', clone);
+                console.log('RANGE after clone', range);
+                // selection.removeAllRanges();//remove any selections already made
+                // selection.addRange(clone);//make the range you have just created the visible selection
+            }
+            else if(document.selection)//IE 8 and lower
+            {
+                console.log('SELECTION', document.selection)
+                docRange.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                docRange.select();//Select the range (make it the visible selection
+            }
             */
-
-            //let cursorPos = getCursorPos(textBox, cursorOverlay);
-
         },
+
+        getCursorPosition() {
+            let docArea = document.getElementById('document');
+            let preCaretRange;
+
+            let saveSelection = function(containerEl) {
+                var range = window.getSelection().getRangeAt(0);
+                var preSelectionRange = range.cloneRange();
+                preSelectionRange.selectNodeContents(containerEl);
+                preSelectionRange.setEnd(range.startContainer, range.startOffset);
+                var start = preSelectionRange.toString().length;
+
+                return {
+                    start: start,
+                    end: start + range.toString().length
+                }
+            }
+
+            return saveSelection(docArea);
+            /*
+
+            if (typeof window.getSelection != "undefined") {
+                let range = window.getSelection().getRangeAt(0);
+                preCaretRange = range.cloneRange();
+
+                preCaretRange.selectNodeContents(docArea);
+
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                console.log('PRE CARET TEXT AT SET END', preCaretRange.toString());
+            } else if (typeof document.selection != "undefined" && document.selection.type != "Control") {
+                var textRange = document.selection.createRange();
+                var preCaretTextRange = document.body.createTextRange();
+                preCaretTextRange.moveToElementText(element);
+                preCaretTextRange.setEndPoint("EndToEnd", textRange);
+            }
+            return preCaretRange;
+            */
+        },
+
         getDoc() {
             let innerText = document.getElementById('document').innerHTML;
             this.newDoc = innerText;
@@ -124,16 +223,36 @@ export default {
             return defaultSettings;
         },
 
-        save: function () {
+        sync: function () {
+            let startSync = new Date();
             this.getDoc();
             this.loadingDoc = true;
-            return docFn.syncDoc(this.newDoc)
+            let beforeSync = this.newDoc;
+
+            return docFn.saveDocument(this.newDoc)
+            .then( res => {
+                this.getDoc();
+
+                let pos = this.getCursorPosition();
+                console.log('POS', pos);
+                const { start, end } = pos;
+                console.error( 'IN SAVE', { start, end } );
+                this.moveCursortoPos(pos );
+                return docFn.refreshDoc(this.newDoc)
+            })
             .then(res => {
+                let pos = this.getCursorPosition();
                 this.oldDoc = res;
                 this.loadingDoc = false;
+
+                const { start, end } = pos;
+                console.error( 'IN REFRESH', { start, end } );
+
+                this.moveCursortoPos( pos );
             }).catch(err => {
                 this.err = true;
                 this.errToast = err.message;
+                throw err;
             });
         },
 
@@ -144,14 +263,54 @@ export default {
             const yPos = coordinates.y + 'em';
 
             return `top: ${ xPos }; left: ${ yPos };`;
+        },
+
+        startAutosave() {
+            this.autosaveTimer = setInterval(() => {
+                // AutoSave
+                return this.sync();
+            }, 10000);
+
+            window.localStorage.setItem('autosaveTimer', this.autosaveTimer);
+        },
+
+        stopAutosave() {
+            clearInterval(this.autosaveTimer);
+            let storedTimer = window.localStorage.getItem('autosaveTimer');
+            if(storedTimer) {
+                window.localStorage.removeItem('autosaveTimer');
+                clearInterval(storedTimer);
+            }
         }
     },
 
+    beforeRouteLeave() {
+        this.stopAutosave();
+    },
+
+    beforeUpdate() {
+        this.stopAutosave();
+    },
+    updated() {
+        this.startAutosave();
+    },
+
+    beforeDestroy() {
+        console.log('******************************\nDESTROYING EDITOR\n**************************');
+        this.stopAutosave();
+    },
+    destroy() {
+        console.log('******************************\nDESTROYED EDITOR\n**************************');
+        this.stopAutosave();
+    },
     mounted() {
         // Load document
         let doc = this.$store.state.document;
 
         let id = this.setDocID();
+
+        this.stopAutosave();
+        this.startAutosave();
 
         if(!doc) {
             let docList = window.localStorage.getItem('docList');
@@ -171,8 +330,14 @@ export default {
         return docFn.initialize(doc, id)
         .then(res => {
             this.oldDoc = res;
+            console.log('VUE EDITOR OLD DOC', this.oldDoc);
             this.loadingDoc = false;
             this.loading = false;
+        })
+        .catch(err => {
+            this.err = true;
+            console.log('THROWING EROR', this.err);
+            this.errToast = 'Error loading document';
         });
     },
 

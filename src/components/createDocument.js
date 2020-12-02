@@ -84,8 +84,11 @@ export const createDocument = function(skyid, fileContents = '', title = 'Untitl
         return skyidSave(skyid, db.userDocs, docs)
         .then(saveRes => {
             console.log('SAVED DOCUMENT TO USERS DOCUMENTS', res);
+
+            // Save the first entry in the doc's diff db
             return client.db.setJSON(docPrivateKey, db.diff, {
-                state: ''
+                state: fileContents,
+                title
             })
         })
         .then(() => {

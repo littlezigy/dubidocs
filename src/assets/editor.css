@@ -55,7 +55,6 @@ div#topBar .row {
 }
 
 .title {
-    font-size: 3em;
     margin: 0 0 1rem 0;
 }
 
@@ -71,8 +70,14 @@ div#topBar .row {
     z-index: 2;
 }
 
-.loading {
-    font-size: 3rem;
-    color: white;
-    font-weight: bold;
+@media screen and (min-width: 300px) {
+    .title {
+        font-size: 5vw;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .title {
+        font-size: 16px;
+    }
 }

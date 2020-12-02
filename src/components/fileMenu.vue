@@ -5,7 +5,7 @@
                 <ul v-if = 'activeMenu === item.name || (item.children && item.children.map(a => a.name).includes(activeMenu))'>
                     <li @click.stop = 'toggleMenu(child)'  v-for = '( child, index) in item.children' :key = 'index'  >{{ child.name }}
                         <ul v-if = 'activeMenu === child.name'>
-                            <li @click = 'stop'  v-for = '( child, index) in child.children' :key = 'index'  >{{ child.name }}
+                            <li @click.stop = 'toggleMenu(child)'  v-for = '( child, index) in child.children' :key = 'index'  >{{ child.name }}
                             </li>
                         </ul>
                     </li>
@@ -23,37 +23,31 @@ export default {
             menu: [{
                 name: 'File',
                 children: [{
-                    name: 'Recent Documents',
+                    name: 'Open',
+                    action: 'open'
+                }, {
+                    name: 'Download',
                     children: [{
-                        name: 'Doc 1',
-                      }, {
-                        name: 'Document 2'
-                    }]
-                    }, {
-                        name: 'Open',
-                        action: 'open'
-                    }, {
-                        name: 'Share'
-                    }, {
-                        name: 'Download'
-                    }, {
-                        name: 'Document Details'
-                    }, {
-                        name: 'Print'
+                        name: 'Microsoft Word (.docx)',
+                        action: 'download'
                     }]
                 }, {
-                    name: 'Edit',
-                    children: [{
-                        name: 'Copy'
-                    }]
+                    name: 'Document Details'
                 }, {
-                    name: 'Help',
-                    children: [{
-                        name: 'About'
-                    }, {
-                        name: 'Shortcuts'
-                    }]
+                    name: 'Print'
+                }]
+            }, {
+                name: 'Edit',
+                children: [{
+                    name: 'Copy'
+                }]
+            }, {
+                name: 'Help',
+                children: [{
+                    name: 'About'
                 }, {
+                    name: 'Shortcuts'
+                }]
             } ]
         }
     },

@@ -6,8 +6,7 @@ import docDiff from './docDiff';
 
 import db from './skydbKeys';
 
-let saveCounter = 0;
-let refreshes = 0;
+let refresh = 0;
 const SAVES_PER_CHECKPOINT = 5
 const REFRESH_MAX = 5;
 
@@ -20,46 +19,44 @@ const parseSkyhex = function(hex) {
 	return str;
 }
 
-export default function(oldDoc, newDoc, publicKey, privateKey) {
+const saveDoc = function(oldDoc, newDoc, publicKey, privateKey) {
     const client = new SkynetClient(portal);
 
+    let prevDiff = null;
+
+    let patch = {};
     let changes = docDiff(oldDoc, newDoc);
     if(changes == false)
         return new Promise(resolve => resolve(false));
 
     console.log('PROCEEIDNG TO SAVE');
 
-    let patch = {};
-
     return client.registry.getEntry(publicKey, db.diff)
     .then(res => {
-        console.log('REGISTRY ENTYR', res);
         let dbEntrySkylink = res.entry.data;;
-        console.log('DB ENTRY SKYLIKNK', dbEntrySkylink);
 
-        if(saveCounter >= SAVES_PER_CHECKPOINT) {
-            patch.state = newDoc;
+        prevDiff = parseSkyhex(dbEntrySkylink);
+        prevDiff = 'https://siasky.net/' + prevDiff;
 
-            prevDiff = parseSkyhex(dbEntrySkylink);
-            prevDiff = 'https://siasky.net/' + prevDiff;
-            patch.prevDiff = prevDiff;
-            saveCounter = 0;
-        }
         return axios.get(portal + '/' + dbEntrySkylink, { timeout: 3000 })
     })
     .then(res => {
-        console.log('RES DB', res.data);
-        console.log('FETCHED DIFF HISTORY', res.data);
-        let prevDiff = null;
+        let saveCounter = 0;
+        if(res.data.diff)
+            saveCounter = res.data.diff.length;
 
-        if( Array.isArray(res.data.diff) ) {
-            patch.diff = [ ...res.data.diff, changes ];
-        } else {
-            patch.diff = [ changes ]
+        patch = res.data;
+
+        if( (!res.data.state && res.data.state != '')
+                        ||
+            (saveCounter > SAVES_PER_CHECKPOINT) )
+        {
             patch.state = newDoc;
+            patch.prevDiff = prevDiff;
+        } else {
+            let oldDiffs = res.data.diff || [];
+            patch.diff = [ ...oldDiffs, changes ];
         }
-
-        console.log('PATCH SAVIGN', patch);
 
         return client.db.setJSON(privateKey, db.diff, patch)
     }).then(res => {
@@ -71,10 +68,11 @@ export default function(oldDoc, newDoc, publicKey, privateKey) {
         console.log('ERRORR WITH SAVE', err);
         if(refresh < REFRESH_MAX) {
             refresh++;
-            return saveDocument(oldDoc, newDoc, publicKey, privateKey)
+            return saveDoc(oldDoc, newDoc, publicKey, privateKey)
         }
         else throw new Error('Error Saving Document');
 
     });
 }
 
+export default saveDoc;

@@ -35,7 +35,9 @@ export default {
                     return createDocument(userSeed, res.value, file.name)
                     .then(res => {
                         console.log('CREATED DOCUMENT', res);
-                        pageRouter.push({ name: 'Editor', params: { docID: res } });
+                        pageRouter.push({ name: 'Editor', params: { docID: res.id } });
+                        this.$store.state.document = doc;
+                        window.location.reload();
                     });
                 });
             }

@@ -88,6 +88,7 @@ export default {
 </script>
 <style src = '@/assets/fontawesome/css/fontawesome.min.css'></style>
 <style src = '@/assets/fontawesome/css/solid.min.css'></style>
+<style src = '@/assets/fontawesome/css/brands.min.css'></style>
 <style src = '@/assets/styles/main.css'></style>
 <style src = '@/assets/styles/skyid.css'></style>
 <style>

@@ -1,6 +1,6 @@
 import * as diff from 'diff';
 
-const docDiff = function(oldDoc, newDoc) {
+const makeDiff = function(oldDoc, newDoc) {
     // NO need to create a diff if old file = new file.
     if(oldDoc === newDoc)
         return false;
@@ -13,4 +13,4 @@ const docDiff = function(oldDoc, newDoc) {
     }
 }
 
-export default docDiff;
+export default makeDiff;

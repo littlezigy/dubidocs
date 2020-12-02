@@ -27,3 +27,14 @@ h1, h2, h3, h4, h5, h6 {
 .text-left {
     text-align: left;
 }
+
+ul {
+    padding-inline-start: 0;
+}
+
+.loading {
+    font-size: 3rem;
+    color: white;
+    font-weight: bold;
+}
+

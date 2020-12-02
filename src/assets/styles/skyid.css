@@ -1,3 +1,8 @@
+.skyid-button {
+    display: flex;
+    align-items: center;
+}
+
 .skyid-button, .skyid-button:focus {
     color: #fff;
     background-color: #57b560;
