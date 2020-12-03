@@ -42,7 +42,7 @@ export const createDocument = function(skyid, fileContents = '', title = 'Untitl
         let docs = res || {};
 
         // Migrate old docs
-        // If even one key is the same in localStorage docList as in  stoed docs on skyid, no need to migrate
+        // If even one key is the same in localStorage docList as in stored docs on skyid, no need to migrate
 
         let similarKeys = [];
 
