@@ -20,7 +20,7 @@ const skyidFetch = function(skyid, dbKey) {
         skyid.getJSON(dbKey, function(response) {
             if(response == false) {
                 console.log('Failed to fetch data from skyid');
-                resolve([]);
+                resolve({});
             }
            else resolve(response);
         });
