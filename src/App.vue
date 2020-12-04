@@ -34,7 +34,6 @@
 </template>
 
 <script>
-import connect from '@/components/idx/connect';
 import * as skyidIntegration from '@/components/skyid-integration';
 
 export default {
