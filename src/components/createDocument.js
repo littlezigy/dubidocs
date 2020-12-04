@@ -29,6 +29,7 @@ const skyidFetch = function(skyid, dbKey) {
 
 export const createDocument = function(skyid, fileContents = '', title = 'Untitled Document') {
     const portal = window.localStorage.getItem('portal');
+    console.log('PORTAL', portal);
     const client = new SkynetClient(portal);
 
     let storedDocs = window.localStorage.getItem('docList');
@@ -58,7 +59,7 @@ export const createDocument = function(skyid, fileContents = '', title = 'Untitl
             }
         }
 
-        if(similarKeys.length < 1 ) {
+        if(similarKeys.length < 1 && oldDocKeys.length >= 1 ) {
             console.log('Migrating documents...');
             docs = { ...docs, ...storedDocs };
         } else
@@ -86,6 +87,7 @@ export const createDocument = function(skyid, fileContents = '', title = 'Untitl
         .then(saveRes => {
             console.log('SAVED DOCUMENT TO USERS DOCUMENTS', res);
 
+            console.log('STUFF IM SAVING', { docPrivateKey, dbdiff: db.diff });
             // Save the first entry in the doc's diff db
             return client.db.setJSON(docPrivateKey, db.diff, {
                 state: fileContents,
@@ -93,6 +95,8 @@ export const createDocument = function(skyid, fileContents = '', title = 'Untitl
             })
         })
         .then(() => {
+            console.log('SAVED TO SKYINET');
+
             return { id: newDocRef, doc: docs[newDocRef] }
         })
     });

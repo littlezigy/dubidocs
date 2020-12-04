@@ -75,6 +75,7 @@ export default {
         }
     },
     mounted() {
+        localStorage.setItem('portal', 'https://siasky.net/');
         console.log('MOUNTING APP');
         let skyid =  skyidIntegration.initialize(this.setAuthState)
 
